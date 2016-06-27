@@ -185,7 +185,7 @@ class JavaEstimator(JavaParams, Estimator):
     """
     Base class for :py:class:`Estimator`s that wrap Java/Scala
     implementations.
-    """
+    """_
 
     __metaclass__ = ABCMeta
 
