@@ -94,8 +94,9 @@ gen-java.*
 org.apache.spark.sql.sources.DataSourceRegister
 org.apache.spark.scheduler.SparkHistoryListenerFactory
 .*parquet
-LZ4BlockInputStream.java
 spark-deps-.*
 .*csv
 .*tsv
 org.apache.spark.scheduler.ExternalClusterManager
+.*\.sql
+.Rbuildignore
