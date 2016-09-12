@@ -114,8 +114,17 @@ The history server can be configured as follows:
     <td>spark.history.retainedApplications</td>
     <td>50</td>
     <td>
-      The number of application UIs to retain. If this cap is exceeded, then the oldest
-      applications will be removed.
+      The number of applications to retain UI data for in the cache. If this cap is exceeded, then
+      the oldest applications will be removed from the cache. If an application is not in the cache,
+      it will have to be loaded from disk if its accessed from the UI.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.ui.maxApplications</td>
+    <td>Int.MaxValue</td>
+    <td>
+      The number of applications to display on the history summary page. Application UIs are still
+      available by accessing their URLs directly even if they are not displayed on the history summary page.
     </td>
   </tr>
   <tr>
@@ -242,7 +251,8 @@ can be identified by their `[attempt-id]`. In the API listed below, when running
     <br>Examples:
     <br><code>?minDate=2015-02-10</code>
     <br><code>?minDate=2015-02-03T16:42:40.000GMT</code>
-    <br><code>?maxDate=[date]</code> latest date/time to list; uses same format as <code>minDate</code>.</td>
+    <br><code>?maxDate=[date]</code> latest date/time to list; uses same format as <code>minDate</code>.
+    <br><code>?limit=[limit]</code> limits the number of applications listed.</td>
   </tr>
   <tr>
     <td><code>/applications/[app-id]/jobs</code></td>
@@ -346,6 +356,18 @@ This allows users to report Spark metrics to a variety of sinks including HTTP, 
 files. The metrics system is configured via a configuration file that Spark expects to be present
 at `$SPARK_HOME/conf/metrics.properties`. A custom file location can be specified via the
 `spark.metrics.conf` [configuration property](configuration.html#spark-properties).
+By default, the root namespace used for driver or executor metrics is 
+the value of `spark.app.id`. However, often times, users want to be able to track the metrics 
+across apps for driver and executors, which is hard to do with application ID 
+(i.e. `spark.app.id`) since it changes with every invocation of the app. For such use cases,
+a custom namespace can be specified for metrics reporting using `spark.metrics.namespace`
+configuration property. 
+If, say, users wanted to set the metrics namespace to the name of the application, they
+can set the `spark.metrics.namespace` property to a value like `${spark.app.name}`. This value is
+then expanded appropriately by Spark and is used as the root namespace of the metrics system. 
+Non driver and executor metrics are never prefixed with `spark.app.id`, nor does the 
+`spark.metrics.namespace` property have any such affect on such metrics.
+
 Spark's metrics are decoupled into different
 _instances_ corresponding to Spark components. Within each instance, you can configure a
 set of sinks to which metrics are reported. The following instances are currently supported:
@@ -355,6 +377,7 @@ set of sinks to which metrics are reported. The following instances are currentl
 * `worker`: A Spark standalone worker process.
 * `executor`: A Spark executor.
 * `driver`: The Spark driver process (the process in which your SparkContext is created).
+* `shuffleService`: The Spark shuffle service.
 
 Each instance can report to zero or more _sinks_. Sinks are contained in the
 `org.apache.spark.metrics.sink` package:

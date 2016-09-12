@@ -196,7 +196,7 @@ class DataFrame(object):
     @property
     @since(1.3)
     def schema(self):
-        """Returns the schema of this :class:`DataFrame` as a :class:`types.StructType`.
+        """Returns the schema of this :class:`DataFrame` as a :class:`pyspark.sql.types.StructType`.
 
         >>> df.schema
         StructType(List(StructField(age,IntegerType,true),StructField(name,StringType,true)))
@@ -644,7 +644,7 @@ class DataFrame(object):
             on = [on]
 
         if on is None or len(on) == 0:
-            jdf = self._jdf.join(other._jdf)
+            jdf = self._jdf.crossJoin(other._jdf)
         elif isinstance(on[0], basestring):
             if how is None:
                 jdf = self._jdf.join(other._jdf, self._jseq(on), "inner")

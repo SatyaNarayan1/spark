@@ -24,9 +24,9 @@ import org.scalatest.BeforeAndAfterEach
 import org.apache.spark.SparkException
 import org.apache.spark.sql.AnalysisException
 import org.apache.spark.sql.catalyst.TableIdentifier
+import org.apache.spark.sql.catalyst.catalog.BucketSpec
 import org.apache.spark.sql.catalyst.parser.ParseException
 import org.apache.spark.sql.execution.command.DDLUtils
-import org.apache.spark.sql.execution.datasources.BucketSpec
 import org.apache.spark.sql.test.SharedSQLContext
 import org.apache.spark.util.Utils
 
@@ -201,7 +201,7 @@ class CreateTableAsSelectSuite
          """.stripMargin
       )
       val table = catalog.getTableMetadata(TableIdentifier("t"))
-      assert(DDLUtils.getPartitionColumnsFromTableProperties(table) == Seq("a"))
+      assert(table.partitionColumnNames == Seq("a"))
     }
   }
 
@@ -217,8 +217,7 @@ class CreateTableAsSelectSuite
          """.stripMargin
       )
       val table = catalog.getTableMetadata(TableIdentifier("t"))
-      assert(DDLUtils.getBucketSpecFromTableProperties(table) ==
-        Option(BucketSpec(5, Seq("a"), Seq("b"))))
+      assert(table.bucketSpec == Option(BucketSpec(5, Seq("a"), Seq("b"))))
     }
   }
 
